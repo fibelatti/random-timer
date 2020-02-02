@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Common -->
+    <string name="app_name">Random Timer</string>
+
+    <string name="hint_ok">OK</string>
+    <string name="hint_yes">Yes</string>
+    <string name="hint_no">No</string>
+    <string name="hint_save">Save</string>
+    <string name="hint_edit">Edit</string>
+    <string name="hint_delete">Delete</string>
+    <string name="hint_continue">Continue</string>
+    <string name="hint_cancel">Cancel</string>
+    <string name="hint_search">Search</string>
+    <string name="hint_dismiss">Dismiss</string>
+    <string name="hint_reset">Reset</string>
+    <string name="hint_help">Help</string>
+    <string name="hint_done">Done</string>
+    <string name="hint_share">Share</string>
+
+    <string name="generic_log_error">Error in %1$s (%2$s)</string>
+
+    <string name="generic_msg_error">Oops, something went wrong</string>
+
+</resources>

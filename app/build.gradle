@@ -1,0 +1,156 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+    id("com.android.application")
+    id("kotlin-android")
+    id("kotlin-android-extensions")
+    id("kotlin-kapt")
+    id("com.getkeepsafe.dexcount")
+}
+
+apply {
+    from("coverage-report.gradle")
+}
+
+android {
+    compileSdkVersion(Versions.compileSdkVersion)
+    buildToolsVersion(Versions.buildToolsVersion)
+
+    defaultConfig {
+        applicationId = AppInfo.applicationId
+        versionCode = AppInfo.versionCode
+        versionName = AppInfo.versionName
+        minSdkVersion(Versions.minSdkVersion)
+        targetSdkVersion(Versions.targetSdkVersion)
+
+        resConfigs("en")
+
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        vectorDrawables.useSupportLibrary = true
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [
+                    "room.schemaLocation":"$projectDir/schemas".toString(),
+                    "room.incremental":"true"
+                ]
+            }
+        }
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file("../keystore/debug.keystore")
+            keyAlias "androiddebugkey"
+            keyPassword "android"
+            storePassword "android"
+        }
+    }
+
+    buildTypes {
+        debug {
+            applicationIdSuffix ".debug"
+
+            minifyEnabled false
+            testCoverageEnabled = true
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs("src/main/kotlin")
+
+        test.java.srcDirs("src/test/kotlin", "src/sharedTest/kotlin")
+
+        androidTest {
+            java.srcDirs("src/androidTest/kotlin", "src/sharedTest/kotlin", "src/test/resources")
+            assets.srcDirs += files("$projectDir/schemas")
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility(JavaVersion.VERSION_1_8)
+        targetCompatibility(JavaVersion.VERSION_1_8)
+    }
+
+    packagingOptions {
+        exclude("META-INF/LICENSE.md")
+        exclude("META-INF/LICENSE-notice.md")
+    }
+
+    testOptions {
+        animationsDisabled true
+
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+
+            all {
+                useJUnitPlatform()
+            }
+        }
+    }
+}
+
+tasks.withType(KotlinCompile).all {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+}
+
+dependencies {
+    implementation(Dependencies.coreLib)
+    implementation(Dependencies.coreLibArch)
+
+    // Kotlin
+    implementation(Dependencies.kotlin)
+    implementation(Dependencies.kotlinReflect) // Used for unit tests only, but the code needs to be compiled with it
+    implementation(Dependencies.coroutinesCore)
+    implementation(Dependencies.coroutinesAndroid)
+
+    // Android
+    implementation(Dependencies.supportLibrary)
+    implementation(Dependencies.fragments)
+    implementation(Dependencies.materialDesign)
+    implementation(Dependencies.constraintLayout)
+
+    implementation(Dependencies.archComponents)
+    kapt(Dependencies.archComponentsCompiler)
+
+    implementation(Dependencies.room)
+    kapt(Dependencies.roomCompiler)
+
+    // Misc
+    implementation(Dependencies.dagger)
+    kapt(Dependencies.daggerCompiler)
+
+    // Test
+    testRuntimeOnly(TestDependencies.junit5Engine)
+    testRuntimeOnly(TestDependencies.junitVintage)
+
+    testCompileOnly(TestDependencies.junit)
+
+    testImplementation(TestDependencies.coreLibTest)
+    testImplementation(TestDependencies.coreLibArchTest)
+
+    testImplementation(TestDependencies.junit5)
+    testImplementation(TestDependencies.junit5Params)
+    testImplementation(TestDependencies.mockitoCore)
+    testImplementation(TestDependencies.coroutinesTest)
+    testImplementation(TestDependencies.archComponentsTest)
+
+    androidTestImplementation(TestDependencies.coreLibTest)
+
+    androidTestImplementation(Dependencies.supportAnnotations)
+    androidTestImplementation(TestDependencies.mockitoAndroid)
+    androidTestImplementation(TestDependencies.archComponentsTest)
+    androidTestImplementation(TestDependencies.testRunner)
+    androidTestImplementation(TestDependencies.kotlinTest)
+}
